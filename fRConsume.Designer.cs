@@ -30,14 +30,17 @@
         {
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tpRes = new System.Windows.Forms.TabPage();
+            this.dgvResources = new System.Windows.Forms.DataGridView();
             this.tpResConsume = new System.Windows.Forms.TabPage();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.правкаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.dgvRConsume = new System.Windows.Forms.DataGridView();
             this.tabControl.SuspendLayout();
             this.tpRes.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvResources)).BeginInit();
+            this.tpResConsume.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvRConsume)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl
@@ -53,7 +56,7 @@
             // 
             // tpRes
             // 
-            this.tpRes.Controls.Add(this.dataGridView1);
+            this.tpRes.Controls.Add(this.dgvResources);
             this.tpRes.Location = new System.Drawing.Point(4, 22);
             this.tpRes.Name = "tpRes";
             this.tpRes.Padding = new System.Windows.Forms.Padding(3);
@@ -62,8 +65,20 @@
             this.tpRes.Text = "Ресурсы";
             this.tpRes.UseVisualStyleBackColor = true;
             // 
+            // dgvResources
+            // 
+            this.dgvResources.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvResources.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvResources.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvResources.Location = new System.Drawing.Point(3, 3);
+            this.dgvResources.Name = "dgvResources";
+            this.dgvResources.Size = new System.Drawing.Size(654, 211);
+            this.dgvResources.TabIndex = 0;
+            this.dgvResources.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvResources_CellValidating);
+            // 
             // tpResConsume
             // 
+            this.tpResConsume.Controls.Add(this.dgvRConsume);
             this.tpResConsume.Location = new System.Drawing.Point(4, 22);
             this.tpResConsume.Name = "tpResConsume";
             this.tpResConsume.Padding = new System.Windows.Forms.Padding(3);
@@ -88,14 +103,15 @@
             this.правкаToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
             this.правкаToolStripMenuItem.Text = "Правка";
             // 
-            // dataGridView1
+            // dgvRConsume
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView1.Location = new System.Drawing.Point(3, 3);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(654, 211);
-            this.dataGridView1.TabIndex = 0;
+            this.dgvRConsume.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvRConsume.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvRConsume.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvRConsume.Location = new System.Drawing.Point(3, 3);
+            this.dgvRConsume.Name = "dgvRConsume";
+            this.dgvRConsume.Size = new System.Drawing.Size(654, 211);
+            this.dgvRConsume.TabIndex = 0;
             // 
             // fRConsume
             // 
@@ -109,9 +125,11 @@
             this.Text = "Потребление ресурсов";
             this.tabControl.ResumeLayout(false);
             this.tpRes.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvResources)).EndInit();
+            this.tpResConsume.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvRConsume)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -122,9 +140,10 @@
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tpRes;
         private System.Windows.Forms.TabPage tpResConsume;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridView dgvResources;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem правкаToolStripMenuItem;
+        private System.Windows.Forms.DataGridView dgvRConsume;
     }
 }
 
