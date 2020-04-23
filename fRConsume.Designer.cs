@@ -32,15 +32,17 @@
             this.tpRes = new System.Windows.Forms.TabPage();
             this.dgvResources = new System.Windows.Forms.DataGridView();
             this.tpResConsume = new System.Windows.Forms.TabPage();
+            this.dgvRConsume = new System.Windows.Forms.DataGridView();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.правкаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.dgvRConsume = new System.Windows.Forms.DataGridView();
+            this.загрузитьЗановоToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.отменитьИзмененияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl.SuspendLayout();
             this.tpRes.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvResources)).BeginInit();
             this.tpResConsume.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvRConsume)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl
@@ -74,7 +76,9 @@
             this.dgvResources.Name = "dgvResources";
             this.dgvResources.Size = new System.Drawing.Size(654, 211);
             this.dgvResources.TabIndex = 0;
+            this.dgvResources.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvResources_CellEndEdit);
             this.dgvResources.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvResources_CellValidating);
+            this.dgvResources.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgvResources_RowValidating);
             // 
             // tpResConsume
             // 
@@ -87,22 +91,6 @@
             this.tpResConsume.Text = "Потребление ресурсов";
             this.tpResConsume.UseVisualStyleBackColor = true;
             // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.правкаToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(668, 24);
-            this.menuStrip1.TabIndex = 1;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // правкаToolStripMenuItem
-            // 
-            this.правкаToolStripMenuItem.Name = "правкаToolStripMenuItem";
-            this.правкаToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
-            this.правкаToolStripMenuItem.Text = "Правка";
-            // 
             // dgvRConsume
             // 
             this.dgvRConsume.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
@@ -112,6 +100,42 @@
             this.dgvRConsume.Name = "dgvRConsume";
             this.dgvRConsume.Size = new System.Drawing.Size(654, 211);
             this.dgvRConsume.TabIndex = 0;
+            this.dgvRConsume.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvRConsume_CellEndEdit);
+            this.dgvRConsume.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvRConsume_CellValidating);
+            this.dgvRConsume.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgvRConsume_RowValidating);
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.правкаToolStripMenuItem,
+            this.отменитьИзмененияToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(668, 24);
+            this.menuStrip1.TabIndex = 1;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // правкаToolStripMenuItem
+            // 
+            this.правкаToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.загрузитьЗановоToolStripMenuItem});
+            this.правкаToolStripMenuItem.Name = "правкаToolStripMenuItem";
+            this.правкаToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
+            this.правкаToolStripMenuItem.Text = "Правка";
+            // 
+            // загрузитьЗановоToolStripMenuItem
+            // 
+            this.загрузитьЗановоToolStripMenuItem.Name = "загрузитьЗановоToolStripMenuItem";
+            this.загрузитьЗановоToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.загрузитьЗановоToolStripMenuItem.Text = "Загрузить заново";
+            this.загрузитьЗановоToolStripMenuItem.Click += new System.EventHandler(this.загрузитьЗановоToolStripMenuItem_Click);
+            // 
+            // отменитьИзмененияToolStripMenuItem
+            // 
+            this.отменитьИзмененияToolStripMenuItem.Name = "отменитьИзмененияToolStripMenuItem";
+            this.отменитьИзмененияToolStripMenuItem.Size = new System.Drawing.Size(136, 20);
+            this.отменитьИзмененияToolStripMenuItem.Text = "Отменить изменения";
+            this.отменитьИзмененияToolStripMenuItem.Click += new System.EventHandler(this.отменитьИзмененияToolStripMenuItem_Click_1);
             // 
             // fRConsume
             // 
@@ -127,9 +151,9 @@
             this.tpRes.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvResources)).EndInit();
             this.tpResConsume.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvRConsume)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvRConsume)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -144,6 +168,8 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem правкаToolStripMenuItem;
         private System.Windows.Forms.DataGridView dgvRConsume;
+        private System.Windows.Forms.ToolStripMenuItem загрузитьЗановоToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem отменитьИзмененияToolStripMenuItem;
     }
 }
 
