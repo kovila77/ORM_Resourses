@@ -78,7 +78,6 @@
             this.dgvResources.TabIndex = 0;
             this.dgvResources.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvResources_CellEndEdit);
             this.dgvResources.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvResources_CellValidating);
-            this.dgvResources.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.dgvResources_DataError);
             this.dgvResources.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgvResources_RowValidating);
             this.dgvResources.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dgvResources_UserDeletingRow);
             // 
@@ -136,8 +135,8 @@
             // отменитьИзмененияToolStripMenuItem
             // 
             this.отменитьИзмененияToolStripMenuItem.Name = "отменитьИзмененияToolStripMenuItem";
-            this.отменитьИзмененияToolStripMenuItem.Size = new System.Drawing.Size(165, 20);
-            this.отменитьИзмененияToolStripMenuItem.Text = "Отменить редактирование";
+            this.отменитьИзмененияToolStripMenuItem.Size = new System.Drawing.Size(207, 20);
+            this.отменитьИзмененияToolStripMenuItem.Text = "Отменить редактирование ячейки";
             this.отменитьИзмененияToolStripMenuItem.Click += new System.EventHandler(this.отменитьИзмененияToolStripMenuItem_Click_1);
             // 
             // fRConsume

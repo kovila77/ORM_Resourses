@@ -126,7 +126,8 @@ namespace ORM_Resourses
             {
                 if (i == except) continue;
                 curRow = dgvRConsume.Rows[i];
-                if ((int)curRow.Cells["rId"].Value == (int)row.Cells["rId"].Value
+                if (!(curRow.Cells["rId"].Value == null || curRow.Cells["bId"].Value == null)
+                    && (int)curRow.Cells["rId"].Value == (int)row.Cells["rId"].Value
                     && (int)curRow.Cells["bId"].Value == (int)row.Cells["bId"].Value)
                     return true;
             }
@@ -191,10 +192,11 @@ namespace ORM_Resourses
                             consume_speed = Convert.ToInt32(row.Cells["consumeSpeed"].Value)
                         };
                         ctx.buildings_resources_consume.Add(bsc);
-                    }else
+                    }
+                    else
                     {
                         bsc.consume_speed = Convert.ToInt32(row.Cells["consumeSpeed"].Value);
-                    }                    
+                    }
                     //ctx.SaveChanges();
                 }
                 ctx.SaveChanges();
@@ -245,7 +247,7 @@ namespace ORM_Resourses
                     }
                 }
             }
-            if (string.IsNullOrEmpty(e.FormattedValue.ToString()))
+            if (string.IsNullOrWhiteSpace(e.FormattedValue.ToString()) && RowHaveSource(dgv.Rows[e.RowIndex]))
                 dgv.CancelEdit();
         }
 
@@ -260,24 +262,25 @@ namespace ORM_Resourses
         private void CellEndEdit(DataGridView dgv, DataGridViewCellEventArgs e)
         {
             if (dgv.Rows[e.RowIndex].IsNewRow) return;
-            //bool canCommit = true;
+            bool canCommit = true;
+
             for (int i = 0; i < dgv.Columns.Count - 1; i++)
             {
-                DataGridViewCell cell = dgv.Rows[e.RowIndex].Cells[i]; //dgv[i, e.RowIndex];
-                //if (cell.Value == null) return;
-                if (cell.Value == null 
-                    || string.IsNullOrWhiteSpace((cell.Value as string)))
+                var cell = dgv[i, e.RowIndex];
+                if (cell.OwningColumn.Visible == false) continue;
+                if (cell.Value == null
+                    || string.IsNullOrWhiteSpace(cell.FormattedValue.ToString()))
                 {
-                    //canCommit = false;
+                    canCommit = false;
                     cell.ErrorText = cell.ErrorText.Replace("Пустая ячейка! ", "");
                     cell.ErrorText = "Пустая ячейка! ";
-                    return;
                 }
                 else
                 {
                     cell.ErrorText = cell.ErrorText.Replace("Пустая ячейка! ", "");
                 }
             }
+            if (!canCommit) return;
             if (dgv == dgvResources)
             {
                 if (IsResourcesExists(dgv.Rows[e.RowIndex].Cells["name"].Value.ToString(), e.RowIndex))
@@ -310,7 +313,6 @@ namespace ORM_Resourses
                     return;
                 }
             }
-            //if (!canCommit) return;
 
             if (RowHaveSource(dgv.Rows[e.RowIndex]))
             {
@@ -325,7 +327,6 @@ namespace ORM_Resourses
         private void dgvResources_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             CellEndEdit(dgvResources, e);
-
         }
 
         private void dgvResources_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
@@ -388,14 +389,18 @@ namespace ORM_Resourses
             {
                 if (MessageBox.Show("Данный ресурс связан с существующей таблицей! Удалить все связанные объекты?", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    for (int i = 0; i < dgvRConsume.Rows.Count - 1; i++)
+                    List<DataGridViewRow> forDel = new List<DataGridViewRow>();
+                    foreach (DataGridViewRow row in dgvRConsume.Rows)
                     {
-                        if (dgvRConsume.Rows[i].Cells["rId"].Value != null && (int)dgvRConsume.Rows[i].Cells["rId"].Value == id)
+                        if (row.Cells["rId"].Value != null && (int)row.Cells["rId"].Value == id)
                         {
-                            dgvRConsume_UserDeletingRow(null, new DataGridViewRowCancelEventArgs(dgvRConsume.Rows[i]));
-                            dgvRConsume.Rows.RemoveAt(i);
+                            if (RowHaveSource(row))
+                                dgvRConsume_UserDeletingRow(null, new DataGridViewRowCancelEventArgs(row));
+                            //dgvRConsume.Rows.Remove(row);
+                            forDel.Add(row);
                         }
                     }
+                    foreach (DataGridViewRow row in forDel) dgvRConsume.Rows.Remove(row);
                     e.Cancel = !DeleteFromDB(dgvResources, e.Row);
                 }
                 else
@@ -407,7 +412,8 @@ namespace ORM_Resourses
 
         private void dgvRConsume_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
-            e.Cancel = !DeleteFromDB(dgvRConsume, e.Row);
+            if(RowHaveSource(e.Row)) 
+                e.Cancel = !DeleteFromDB(dgvRConsume, e.Row);
         }
 
         private void dgvResources_DataError(object sender, DataGridViewDataErrorEventArgs e)
