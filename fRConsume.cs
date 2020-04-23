@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Media;
@@ -179,10 +180,22 @@ namespace ORM_Resourses
                 {
                     buildings_resources_consume bsc = (buildings_resources_consume)row.Cells["Source"].Value;
                     ctx.buildings_resources_consume.Attach(bsc);
-                    bsc.building_id = (int)row.Cells["bId"].Value;
-                    bsc.resources_id = (int)row.Cells["rId"].Value;
-                    bsc.consume_speed = Convert.ToInt32(row.Cells["consumeSpeed"].Value);
-                    ctx.SaveChanges();
+                    if (bsc.building_id != (int)row.Cells["bId"].Value ||
+                        bsc.resources_id != (int)row.Cells["rId"].Value)
+                    {
+                        ctx.buildings_resources_consume.Remove(bsc);
+                        bsc = new buildings_resources_consume
+                        {
+                            building_id = (int)row.Cells["bId"].Value,
+                            resources_id = bsc.resources_id = (int)row.Cells["rId"].Value,
+                            consume_speed = Convert.ToInt32(row.Cells["consumeSpeed"].Value)
+                        };
+                        ctx.buildings_resources_consume.Add(bsc);
+                    }else
+                    {
+                        bsc.consume_speed = Convert.ToInt32(row.Cells["consumeSpeed"].Value);
+                    }                    
+                    //ctx.SaveChanges();
                 }
                 ctx.SaveChanges();
             }
@@ -247,15 +260,18 @@ namespace ORM_Resourses
         private void CellEndEdit(DataGridView dgv, DataGridViewCellEventArgs e)
         {
             if (dgv.Rows[e.RowIndex].IsNewRow) return;
-            bool canCommit = true;
+            //bool canCommit = true;
             for (int i = 0; i < dgv.Columns.Count - 1; i++)
             {
-                var cell = dgv[i, e.RowIndex];
-                if (cell.Value == null || string.IsNullOrWhiteSpace(cell.ToString()))
+                DataGridViewCell cell = dgv.Rows[e.RowIndex].Cells[i]; //dgv[i, e.RowIndex];
+                //if (cell.Value == null) return;
+                if (cell.Value == null 
+                    || string.IsNullOrWhiteSpace((cell.Value as string)))
                 {
-                    canCommit = false;
+                    //canCommit = false;
                     cell.ErrorText = cell.ErrorText.Replace("Пустая ячейка! ", "");
                     cell.ErrorText = "Пустая ячейка! ";
+                    return;
                 }
                 else
                 {
@@ -294,7 +310,7 @@ namespace ORM_Resourses
                     return;
                 }
             }
-            if (!canCommit) return;
+            //if (!canCommit) return;
 
             if (RowHaveSource(dgv.Rows[e.RowIndex]))
             {
@@ -392,6 +408,11 @@ namespace ORM_Resourses
         private void dgvRConsume_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
             e.Cancel = !DeleteFromDB(dgvRConsume, e.Row);
+        }
+
+        private void dgvResources_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+
         }
     }
 }
