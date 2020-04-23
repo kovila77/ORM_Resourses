@@ -46,7 +46,7 @@ namespace ORM_Resourses
             InitializeDGVRConsume();
         }
 
-        private void загрузитьЗановоToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ReloadData(object sender, EventArgs e)
         {
             dgvResources.CancelEdit();
             dgvRConsume.CancelEdit();
@@ -63,25 +63,26 @@ namespace ORM_Resourses
                 DataTable dt = new DataTable();
                 dt.Columns.Add("id", typeof(int));
                 dt.Columns.Add("name", typeof(string));
+
                 foreach (var build in ctx.buildings)
                 {
                     dt.Rows.Add(build.building_id, build.building_name);
                 }
+
                 BindingSource bs = new BindingSource(dt, "");
                 cbBuldingsId.DataSource = bs;
 
                 dgvRConsume.Columns.Add(cbResorcesId);
                 dgvRConsume.Columns.Add(cbBuldingsId);
                 dgvRConsume.Columns.Add("consumeSpeed", "Скорость потребления");
-                //dgvRConsume.Columns[dgvRConsume.Columns.Add("State", "State")].Visible = false;
                 dgvRConsume.Columns[dgvRConsume.Columns.Add("Source", "Source")].Visible = false;
+
                 foreach (var brc in ctx.buildings_resources_consume)
                 {
                     int i = dgvRConsume.Rows.Add();
                     dgvRConsume.Rows[i].Cells[0].Value = brc.resources_id;
                     dgvRConsume.Rows[i].Cells[1].Value = brc.building_id;
                     dgvRConsume.Rows[i].Cells[2].Value = brc.consume_speed;
-                    //dgvRConsume.Rows[i].Cells[3].Value = RowState.Commited;
                     dgvRConsume.Rows[i].Cells[3].Value = brc;
                 }
             }
@@ -95,13 +96,17 @@ namespace ORM_Resourses
                 dt.Columns.Add("id", typeof(int));
                 dt.Columns.Add("name", typeof(string));
                 dt.Columns.Add("Source", typeof(resource));
+
                 foreach (var res in ctx.resources)
                 {
                     dt.Rows.Add(res.resources_id, res.resources_name, res);
                 }
+
                 BindingSource bs = new BindingSource(dt, "");
                 cbResorcesId.DataSource = bs;
+
                 dgvResources.DataSource = dt;
+
                 dgvResources.Columns["id"].Visible = false;
                 dgvResources.Columns["Source"].Visible = false;
                 dgvResources.Columns["name"].HeaderText = "Ресурс";
@@ -185,6 +190,7 @@ namespace ORM_Resourses
                         bsc.resources_id != (int)row.Cells["rId"].Value)
                     {
                         ctx.buildings_resources_consume.Remove(bsc);
+                        ctx.SaveChanges();
                         bsc = new buildings_resources_consume
                         {
                             building_id = (int)row.Cells["bId"].Value,
@@ -197,7 +203,6 @@ namespace ORM_Resourses
                     {
                         bsc.consume_speed = Convert.ToInt32(row.Cells["consumeSpeed"].Value);
                     }
-                    //ctx.SaveChanges();
                 }
                 ctx.SaveChanges();
             }
@@ -412,7 +417,7 @@ namespace ORM_Resourses
 
         private void dgvRConsume_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
-            if(RowHaveSource(e.Row)) 
+            if (RowHaveSource(e.Row))
                 e.Cancel = !DeleteFromDB(dgvRConsume, e.Row);
         }
 

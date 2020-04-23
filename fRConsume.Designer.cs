@@ -130,7 +130,7 @@
             this.загрузитьЗановоToolStripMenuItem.Name = "загрузитьЗановоToolStripMenuItem";
             this.загрузитьЗановоToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.загрузитьЗановоToolStripMenuItem.Text = "Загрузить заново";
-            this.загрузитьЗановоToolStripMenuItem.Click += new System.EventHandler(this.загрузитьЗановоToolStripMenuItem_Click);
+            this.загрузитьЗановоToolStripMenuItem.Click += new System.EventHandler(this.ReloadData);
             // 
             // отменитьИзмененияToolStripMenuItem
             // 
