@@ -16,7 +16,13 @@ namespace ORM_Resourses
     {
         private DataGridViewComboBoxColumn cbResorcesId;
         private DataGridViewComboBoxColumn cbBuldingsId;
-        private bool newRowAdded = false;
+        private bool loadFromDB = true;
+        private enum RowState
+        {
+            Commited,
+            Changed,
+            New
+        }
 
         public fRConsume()
         {
@@ -52,12 +58,12 @@ namespace ORM_Resourses
 
         private void InitializeDGVRConsume()
         {
+            loadFromDB = true;
             using (var ctx = new OpenDataContext())
             {
                 DataTable dt = new DataTable();
                 dt.Columns.Add("id", typeof(int));
                 dt.Columns.Add("name", typeof(string));
-                //dt.Columns.Add("ready", typeof(bool));
                 foreach (var build in ctx.buildings)
                 {
                     dt.Rows.Add(build.building_id, build.building_name);
@@ -68,18 +74,24 @@ namespace ORM_Resourses
                 dgvRConsume.Columns.Add(cbResorcesId);
                 dgvRConsume.Columns.Add(cbBuldingsId);
                 dgvRConsume.Columns.Add("consumeSpeed", "Скорость потребления");
+                dgvRConsume.Columns[dgvRConsume.Columns.Add("State", "State")].Visible = false;
+                dgvRConsume.Columns[dgvRConsume.Columns.Add("Source", "Source")].Visible = false;
                 foreach (var brs in ctx.buildings_resources_consume)
                 {
                     int i = dgvRConsume.Rows.Add();
                     dgvRConsume.Rows[i].Cells[0].Value = brs.resources_id;
                     dgvRConsume.Rows[i].Cells[1].Value = brs.building_id;
                     dgvRConsume.Rows[i].Cells[2].Value = brs.consume_speed;
+                    dgvRConsume.Rows[i].Cells[3].Value = RowState.Commited;
+                    dgvRConsume.Rows[i].Cells[4].Value = brs;
                 }
             }
+            loadFromDB = false;
         }
 
         private void InitializeDGVResources()
         {
+            loadFromDB = true;
             using (var ctx = new OpenDataContext())
             {
                 DataTable dt = new DataTable();
@@ -95,6 +107,7 @@ namespace ORM_Resourses
                 dgvResources.Columns["id"].Visible = false;
                 dgvResources.Columns["name"].HeaderText = "Ресурс";
             }
+            loadFromDB = false;
         }
 
         private bool IsResourcesExists(string name)
@@ -141,6 +154,10 @@ namespace ORM_Resourses
                     res.resources_name = row.Cells["name"].Value.ToString();
                     ctx.SaveChanges();
                 }
+                else
+                {
+                    buildings_resources_consume bsc = ctx.buildings_resources_consume.Find();
+                }
             }
         }
 
@@ -157,7 +174,7 @@ namespace ORM_Resourses
                         e.Cancel = true;
                         SystemSounds.Beep.Play();
                     }
-                }//Row это плохо!
+                }
             }
             if (string.IsNullOrEmpty(e.FormattedValue.ToString()))
                 dgv.CancelEdit();
@@ -167,7 +184,6 @@ namespace ORM_Resourses
         {
             if (dgv.Rows[e.RowIndex].IsNewRow)
             {
-                newRowAdded = true;
                 return;
             }
             //foreach (DataGridViewCell cell in dgv.Rows[e.RowIndex].Cells)
@@ -209,28 +225,33 @@ namespace ORM_Resourses
                 {
                     //dgv.Rows[e.RowIndex].ErrorText = dgv.Rows[e.RowIndex].ErrorText.Replace("Ресурс уже существует! ", "");
                     //dgv.Rows[e.RowIndex].ErrorText = "Ресурс уже существует! ";
-                    MessageBox.Show("Ресурс уже существует! Введённая строчка будет удалена!");
-                    dgv.Rows.RemoveAt(e.RowIndex);
+                    if (dgv.Rows[e.RowIndex].Cells["id"].Value == null)
+                    {
+                        MessageBox.Show("Ресурс уже существует! Введённая строчка будет удалена!");
+                        dgv.Rows.RemoveAt(e.RowIndex);
+                    }
                     return;
                 }
             }
             if (!canCommit) return;
 
-            //if (dgv == dgvResources)
-            //    if (newRowAdded)
-            //    {
-
-            //        InsertToDB(dgv, dgv.Rows[e.RowIndex]);
-            //        newRowAdded = false;
-            //    }
-            //    else
-            //        UpdateDB(dgv, dgv.Rows[e.RowIndex]);
-            //if (dgv == dgvRConsume)
-            //    if (dgv.Rows[e.RowIndex].Cells["id"].Value == null)
-            //        InsertToDB(dgv, dgv.Rows[e.RowIndex]);
-            //    else
-            //        UpdateDB(dgv, dgv.Rows[e.RowIndex]);
-
+            if (dgv == dgvResources)
+                if (dgv.Rows[e.RowIndex].Cells["id"].Value == DBNull.Value)
+                    InsertToDB(dgv, dgv.Rows[e.RowIndex]);
+                else
+                    UpdateDB(dgv, dgv.Rows[e.RowIndex]);
+            if (dgv == dgvRConsume)
+            {
+                if ((RowState)dgv.Rows[e.RowIndex].Cells["State"].Value == RowState.New)
+                {
+                    InsertToDB(dgv, dgv.Rows[e.RowIndex]);
+                }
+                else
+                {
+                    UpdateDB(dgv, dgv.Rows[e.RowIndex]);
+                }
+                dgv.Rows[e.RowIndex].Cells["State"].Value = RowState.Commited;
+            }
             //foreach (var cell in dgv)
             //{
 
@@ -292,6 +313,16 @@ namespace ORM_Resourses
             }
         }
 
+        private void dgvResources_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+
+        }
+
+        private void dgvRConsume_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            if (loadFromDB) return;
+            dgvRConsume.Rows[e.RowIndex].Cells["State"].Value = RowState.New;
+        }
     }
 }
 

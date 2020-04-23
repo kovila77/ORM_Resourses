@@ -78,6 +78,7 @@
             this.dgvResources.TabIndex = 0;
             this.dgvResources.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvResources_CellEndEdit);
             this.dgvResources.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvResources_CellValidating);
+            this.dgvResources.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.dgvResources_RowsAdded);
             this.dgvResources.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgvResources_RowValidating);
             // 
             // tpResConsume
@@ -102,6 +103,7 @@
             this.dgvRConsume.TabIndex = 0;
             this.dgvRConsume.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvRConsume_CellEndEdit);
             this.dgvRConsume.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvRConsume_CellValidating);
+            this.dgvRConsume.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.dgvRConsume_RowsAdded);
             this.dgvRConsume.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgvRConsume_RowValidating);
             // 
             // menuStrip1
