@@ -126,7 +126,7 @@ namespace ORM_Resourses
                 if (i == except) continue;
                 curRow = dgvRConsume.Rows[i];
                 if ((int)curRow.Cells["rId"].Value == (int)row.Cells["rId"].Value
-                    && (int)curRow.Cells["bId"].Value == (int)row.Cells["bId"].Value) 
+                    && (int)curRow.Cells["bId"].Value == (int)row.Cells["bId"].Value)
                     return true;
             }
             return false;

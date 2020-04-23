@@ -73,7 +73,6 @@
             this.dgvResources.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvResources.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvResources.Location = new System.Drawing.Point(3, 3);
-            this.dgvResources.MultiSelect = false;
             this.dgvResources.Name = "dgvResources";
             this.dgvResources.Size = new System.Drawing.Size(654, 211);
             this.dgvResources.TabIndex = 0;
@@ -99,7 +98,6 @@
             this.dgvRConsume.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvRConsume.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvRConsume.Location = new System.Drawing.Point(3, 3);
-            this.dgvRConsume.MultiSelect = false;
             this.dgvRConsume.Name = "dgvRConsume";
             this.dgvRConsume.Size = new System.Drawing.Size(654, 211);
             this.dgvRConsume.TabIndex = 0;
