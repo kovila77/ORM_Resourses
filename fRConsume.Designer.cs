@@ -73,13 +73,14 @@
             this.dgvResources.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvResources.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvResources.Location = new System.Drawing.Point(3, 3);
+            this.dgvResources.MultiSelect = false;
             this.dgvResources.Name = "dgvResources";
             this.dgvResources.Size = new System.Drawing.Size(654, 211);
             this.dgvResources.TabIndex = 0;
             this.dgvResources.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvResources_CellEndEdit);
             this.dgvResources.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvResources_CellValidating);
-            this.dgvResources.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.dgvResources_RowsAdded);
             this.dgvResources.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgvResources_RowValidating);
+            this.dgvResources.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dgvResources_UserDeletingRow);
             // 
             // tpResConsume
             // 
@@ -98,13 +99,14 @@
             this.dgvRConsume.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvRConsume.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvRConsume.Location = new System.Drawing.Point(3, 3);
+            this.dgvRConsume.MultiSelect = false;
             this.dgvRConsume.Name = "dgvRConsume";
             this.dgvRConsume.Size = new System.Drawing.Size(654, 211);
             this.dgvRConsume.TabIndex = 0;
             this.dgvRConsume.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvRConsume_CellEndEdit);
             this.dgvRConsume.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvRConsume_CellValidating);
-            this.dgvRConsume.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.dgvRConsume_RowsAdded);
             this.dgvRConsume.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dgvRConsume_RowValidating);
+            this.dgvRConsume.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dgvRConsume_UserDeletingRow);
             // 
             // menuStrip1
             // 
@@ -135,8 +137,8 @@
             // отменитьИзмененияToolStripMenuItem
             // 
             this.отменитьИзмененияToolStripMenuItem.Name = "отменитьИзмененияToolStripMenuItem";
-            this.отменитьИзмененияToolStripMenuItem.Size = new System.Drawing.Size(136, 20);
-            this.отменитьИзмененияToolStripMenuItem.Text = "Отменить изменения";
+            this.отменитьИзмененияToolStripMenuItem.Size = new System.Drawing.Size(165, 20);
+            this.отменитьИзмененияToolStripMenuItem.Text = "Отменить редактирование";
             this.отменитьИзмененияToolStripMenuItem.Click += new System.EventHandler(this.отменитьИзмененияToolStripMenuItem_Click_1);
             // 
             // fRConsume

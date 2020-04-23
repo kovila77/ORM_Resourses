@@ -16,7 +16,6 @@ namespace ORM_Resourses
     {
         private DataGridViewComboBoxColumn cbResorcesId;
         private DataGridViewComboBoxColumn cbBuldingsId;
-        private bool loadFromDB = true;
         private enum RowState
         {
             Commited,
@@ -58,7 +57,6 @@ namespace ORM_Resourses
 
         private void InitializeDGVRConsume()
         {
-            loadFromDB = true;
             using (var ctx = new OpenDataContext())
             {
                 DataTable dt = new DataTable();
@@ -74,48 +72,69 @@ namespace ORM_Resourses
                 dgvRConsume.Columns.Add(cbResorcesId);
                 dgvRConsume.Columns.Add(cbBuldingsId);
                 dgvRConsume.Columns.Add("consumeSpeed", "Скорость потребления");
-                dgvRConsume.Columns[dgvRConsume.Columns.Add("State", "State")].Visible = false;
+                //dgvRConsume.Columns[dgvRConsume.Columns.Add("State", "State")].Visible = false;
                 dgvRConsume.Columns[dgvRConsume.Columns.Add("Source", "Source")].Visible = false;
-                foreach (var brs in ctx.buildings_resources_consume)
+                foreach (var brc in ctx.buildings_resources_consume)
                 {
                     int i = dgvRConsume.Rows.Add();
-                    dgvRConsume.Rows[i].Cells[0].Value = brs.resources_id;
-                    dgvRConsume.Rows[i].Cells[1].Value = brs.building_id;
-                    dgvRConsume.Rows[i].Cells[2].Value = brs.consume_speed;
-                    dgvRConsume.Rows[i].Cells[3].Value = RowState.Commited;
-                    dgvRConsume.Rows[i].Cells[4].Value = brs;
+                    dgvRConsume.Rows[i].Cells[0].Value = brc.resources_id;
+                    dgvRConsume.Rows[i].Cells[1].Value = brc.building_id;
+                    dgvRConsume.Rows[i].Cells[2].Value = brc.consume_speed;
+                    //dgvRConsume.Rows[i].Cells[3].Value = RowState.Commited;
+                    dgvRConsume.Rows[i].Cells[3].Value = brc;
                 }
             }
-            loadFromDB = false;
         }
 
         private void InitializeDGVResources()
         {
-            loadFromDB = true;
             using (var ctx = new OpenDataContext())
             {
                 DataTable dt = new DataTable();
                 dt.Columns.Add("id", typeof(int));
                 dt.Columns.Add("name", typeof(string));
+                dt.Columns.Add("Source", typeof(resource));
                 foreach (var res in ctx.resources)
                 {
-                    dt.Rows.Add(res.resources_id, res.resources_name);
+                    dt.Rows.Add(res.resources_id, res.resources_name, res);
                 }
                 BindingSource bs = new BindingSource(dt, "");
                 cbResorcesId.DataSource = bs;
                 dgvResources.DataSource = dt;
                 dgvResources.Columns["id"].Visible = false;
+                dgvResources.Columns["Source"].Visible = false;
                 dgvResources.Columns["name"].HeaderText = "Ресурс";
             }
-            loadFromDB = false;
         }
 
-        private bool IsResourcesExists(string name)
+        private bool IsResourcesExists(string name, int curRow)
         {
-            using (var ctx = new OpenDataContext())
+            for (int i = 0; i < dgvResources.Rows.Count - 1; i++)
             {
-                return (ctx.resources.FirstOrDefault(r => (r.resources_name == name)) != null);
+                if (i == curRow) continue;
+                if (dgvResources.Rows[i].Cells["name"].Value.ToString() == name) return true;
             }
+            return false;
+        }
+
+        private bool IsRConsumeExists(DataGridViewRow row, int except)
+        {
+            DataGridViewRow curRow;
+            if (row.Cells["rId"].Value == null || row.Cells["bId"].Value == null) return false;
+            for (int i = 0; i < dgvRConsume.Rows.Count - 1; i++)
+            {
+                if (i == except) continue;
+                curRow = dgvRConsume.Rows[i];
+                if ((int)curRow.Cells["rId"].Value == (int)row.Cells["rId"].Value
+                    && (int)curRow.Cells["bId"].Value == (int)row.Cells["bId"].Value) 
+                    return true;
+            }
+            return false;
+        }
+
+        private bool RowHaveSource(DataGridViewRow row)
+        {
+            return !(row.Cells["Source"].Value == null || row.Cells["Source"].Value == DBNull.Value);
         }
 
         private int InsertToDB(DataGridView dgv, DataGridViewRow row)
@@ -128,17 +147,19 @@ namespace ORM_Resourses
                     ctx.resources.Add(res);
                     ctx.SaveChanges();
                     row.Cells["id"].Value = res.resources_id;
+                    row.Cells["Source"].Value = res;
                 }
                 else
                 {
-                    buildings_resources_consume brs = new buildings_resources_consume
+                    buildings_resources_consume brc = new buildings_resources_consume
                     {
                         resources_id = (int)row.Cells["rId"].Value,
                         building_id = (int)row.Cells["bId"].Value,
                         consume_speed = int.Parse(row.Cells["consumeSpeed"].Value.ToString())
                     };
-                    ctx.buildings_resources_consume.Add(brs);
+                    ctx.buildings_resources_consume.Add(brc);
                     ctx.SaveChanges();
+                    row.Cells["Source"].Value = brc;
                 }
             }
             return -1;
@@ -150,15 +171,50 @@ namespace ORM_Resourses
             {
                 if (dgv == dgvResources)
                 {
-                    resource res = ctx.resources.Find(Convert.ToInt32(row.Cells["id"].Value));
+                    resource res = (resource)row.Cells["Source"].Value;
+                    ctx.resources.Attach(res);
                     res.resources_name = row.Cells["name"].Value.ToString();
-                    ctx.SaveChanges();
                 }
                 else
                 {
-                    buildings_resources_consume bsc = ctx.buildings_resources_consume.Find();
+                    buildings_resources_consume bsc = (buildings_resources_consume)row.Cells["Source"].Value;
+                    ctx.buildings_resources_consume.Attach(bsc);
+                    bsc.building_id = (int)row.Cells["bId"].Value;
+                    bsc.resources_id = (int)row.Cells["rId"].Value;
+                    bsc.consume_speed = Convert.ToInt32(row.Cells["consumeSpeed"].Value);
+                    ctx.SaveChanges();
+                }
+                ctx.SaveChanges();
+            }
+        }
+
+        private bool DeleteFromDB(DataGridView dgv, DataGridViewRow row)
+        {
+            using (var ctx = new OpenDataContext())
+            {
+                try
+                {
+                    if (dgv == dgvResources)
+                    {
+                        resource res = (resource)row.Cells["Source"].Value;
+                        ctx.resources.Attach(res);
+                        ctx.resources.Remove(res);
+                    }
+                    else
+                    {
+                        buildings_resources_consume bsc = (buildings_resources_consume)row.Cells["Source"].Value;
+                        ctx.buildings_resources_consume.Attach(bsc);
+                        ctx.buildings_resources_consume.Remove(bsc);
+                    }
+                    ctx.SaveChanges();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show($"Ошибка во время удаления, возможно объект связан с чем-то внутри БД: \n{e.Message}");
                 }
             }
+            return false;
         }
 
         private void CellValidating(DataGridView dgv, DataGridViewCellValidatingEventArgs e)
@@ -186,26 +242,13 @@ namespace ORM_Resourses
             {
                 return;
             }
-            //foreach (DataGridViewCell cell in dgv.Rows[e.RowIndex].Cells)
-            //{
-            //    if (cell.Value == null || cell.Value.ToString().Trim() == "")
-            //    {
-            //        //dgv.Rows[e.RowIndex].ErrorText += "Пустая ячейка! ";
-            //        cell.ErrorText = "Пустая ячейка! ";
-            //    }
-            //    else
-            //    {
-            //        //dgv.Rows[e.RowIndex].ErrorText = dgv.Rows[e.RowIndex].ErrorText.Replace("Пустая ячейка! ", "");
-            //        cell.ErrorText = cell.ErrorText.Replace("Пустая ячейка! ", "");
-            //    }
-            //}
         }
 
         private void CellEndEdit(DataGridView dgv, DataGridViewCellEventArgs e)
         {
-            if (dgv.Rows[e.ColumnIndex].IsNewRow) return;
+            if (dgv.Rows[e.RowIndex].IsNewRow) return;
             bool canCommit = true;
-            for (int i = 0; i < dgv.Columns.Count; i++)
+            for (int i = 0; i < dgv.Columns.Count - 1; i++)
             {
                 var cell = dgv[i, e.RowIndex];
                 if (cell.Value == null || string.IsNullOrWhiteSpace(cell.ToString()))
@@ -221,50 +264,46 @@ namespace ORM_Resourses
             }
             if (dgv == dgvResources)
             {
-                if (IsResourcesExists(dgv.Rows[e.RowIndex].Cells["name"].Value.ToString()))
+                if (IsResourcesExists(dgv.Rows[e.RowIndex].Cells["name"].Value.ToString(), e.RowIndex))
                 {
-                    //dgv.Rows[e.RowIndex].ErrorText = dgv.Rows[e.RowIndex].ErrorText.Replace("Ресурс уже существует! ", "");
-                    //dgv.Rows[e.RowIndex].ErrorText = "Ресурс уже существует! ";
-                    if (dgv.Rows[e.RowIndex].Cells["id"].Value == null)
-                    {
-                        MessageBox.Show("Ресурс уже существует! Введённая строчка будет удалена!");
+                    MessageBox.Show("Ресурс уже существует!");
+                    if (RowHaveSource(dgv.Rows[e.RowIndex]))
+                        dgv.Rows[e.RowIndex].Cells["name"].Value = ((resource)dgv.Rows[e.RowIndex].Cells["Source"].Value).resources_name;
+                    else
                         dgv.Rows.RemoveAt(e.RowIndex);
+                    return;
+                }
+            }
+            if (dgv == dgvRConsume)
+            {
+                if (IsRConsumeExists(dgv.Rows[e.RowIndex], e.RowIndex))
+                {
+                    MessageBox.Show("Такая комбинация уже существует!");
+                    if (RowHaveSource(dgv.Rows[e.RowIndex]))
+                    {
+                        var brc = (buildings_resources_consume)dgv.Rows[e.RowIndex].Cells["Source"].Value;
+                        dgv.Rows[e.RowIndex].Cells["bId"].Value = brc.building_id;
+                        dgv.Rows[e.RowIndex].Cells["rId"].Value = brc.resources_id;
+                        dgv.Rows[e.RowIndex].Cells["consumeSpeed"].Value = brc.consume_speed;
+                    }
+                    else
+                    {
+                        dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = null;
+                        dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].ErrorText = "Пустая ячейка! ";
                     }
                     return;
                 }
             }
             if (!canCommit) return;
 
-            if (dgv == dgvResources)
-                if (dgv.Rows[e.RowIndex].Cells["id"].Value == DBNull.Value)
-                    InsertToDB(dgv, dgv.Rows[e.RowIndex]);
-                else
-                    UpdateDB(dgv, dgv.Rows[e.RowIndex]);
-            if (dgv == dgvRConsume)
+            if (RowHaveSource(dgv.Rows[e.RowIndex]))
             {
-                if ((RowState)dgv.Rows[e.RowIndex].Cells["State"].Value == RowState.New)
-                {
-                    InsertToDB(dgv, dgv.Rows[e.RowIndex]);
-                }
-                else
-                {
-                    UpdateDB(dgv, dgv.Rows[e.RowIndex]);
-                }
-                dgv.Rows[e.RowIndex].Cells["State"].Value = RowState.Commited;
+                UpdateDB(dgv, dgv.Rows[e.RowIndex]);
             }
-            //foreach (var cell in dgv)
-            //{
-
-            //    if (cell.Value == null || cell.Value.ToString().Trim() == "")
-            //    {
-            //        cell.ErrorText = cell.ErrorText.Replace("Пустая ячейка! ", "");
-            //        cell.ErrorText = "Пустая ячейка! ";
-            //    }
-            //    else
-            //    {
-            //        cell.ErrorText = cell.ErrorText.Replace("Пустая ячейка! ", "");
-            //    }
-            //}
+            else
+            {
+                InsertToDB(dgv, dgv.Rows[e.RowIndex]);
+            }
         }
 
         private void dgvResources_CellEndEdit(object sender, DataGridViewCellEventArgs e)
@@ -313,15 +352,46 @@ namespace ORM_Resourses
             }
         }
 
-        private void dgvResources_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        private bool dgvRConsumeContainRes(int idRes)
         {
-
+            for (int i = 0; i < dgvRConsume.Rows.Count - 1; i++)
+            {
+                if (dgvRConsume.Rows[i].Cells["rId"].Value != null && (int)dgvRConsume.Rows[i].Cells["rId"].Value == idRes) return true;
+            }
+            return false;
         }
 
-        private void dgvRConsume_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        private void dgvResources_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
-            if (loadFromDB) return;
-            dgvRConsume.Rows[e.RowIndex].Cells["State"].Value = RowState.New;
+            var id = (int)e.Row.Cells["id"].Value;
+            if (!dgvRConsumeContainRes(id))
+            {
+                e.Cancel = !DeleteFromDB(dgvResources, e.Row);
+            }
+            else
+            {
+                if (MessageBox.Show("Данный ресурс связан с существующей таблицей! Удалить все связанные объекты?", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    for (int i = 0; i < dgvRConsume.Rows.Count - 1; i++)
+                    {
+                        if (dgvRConsume.Rows[i].Cells["rId"].Value != null && (int)dgvRConsume.Rows[i].Cells["rId"].Value == id)
+                        {
+                            dgvRConsume_UserDeletingRow(null, new DataGridViewRowCancelEventArgs(dgvRConsume.Rows[i]));
+                            dgvRConsume.Rows.RemoveAt(i);
+                        }
+                    }
+                    e.Cancel = !DeleteFromDB(dgvResources, e.Row);
+                }
+                else
+                {
+                    e.Cancel = true;
+                }
+            }
+        }
+
+        private void dgvRConsume_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
+        {
+            e.Cancel = !DeleteFromDB(dgvRConsume, e.Row);
         }
     }
 }
