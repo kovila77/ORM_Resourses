@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Entity;
 using System.Drawing;
 using System.Linq;
 using System.Media;
@@ -15,6 +16,7 @@ namespace ORM_Resourses
     {
         private DataGridViewComboBoxColumn cbResorcesId;
         private DataGridViewComboBoxColumn cbBuldingsId;
+        private bool newRowAdded = false;
 
         public fRConsume()
         {
@@ -55,6 +57,7 @@ namespace ORM_Resourses
                 DataTable dt = new DataTable();
                 dt.Columns.Add("id", typeof(int));
                 dt.Columns.Add("name", typeof(string));
+                //dt.Columns.Add("ready", typeof(bool));
                 foreach (var build in ctx.buildings)
                 {
                     dt.Rows.Add(build.building_id, build.building_name);
@@ -109,7 +112,6 @@ namespace ORM_Resourses
                 if (dgv == dgvResources)
                 {
                     resource res = new resource { resources_name = row.Cells["name"].Value.ToString() };
-                    //res.resources_id = null;
                     ctx.resources.Add(res);
                     ctx.SaveChanges();
                     row.Cells["id"].Value = res.resources_id;
@@ -127,6 +129,19 @@ namespace ORM_Resourses
                 }
             }
             return -1;
+        }
+
+        private void UpdateDB(DataGridView dgv, DataGridViewRow row)
+        {
+            using (var ctx = new OpenDataContext())
+            {
+                if (dgv == dgvResources)
+                {
+                    resource res = ctx.resources.Find(Convert.ToInt32(row.Cells["id"].Value));
+                    res.resources_name = row.Cells["name"].Value.ToString();
+                    ctx.SaveChanges();
+                }
+            }
         }
 
         private void CellValidating(DataGridView dgv, DataGridViewCellValidatingEventArgs e)
@@ -150,7 +165,11 @@ namespace ORM_Resourses
 
         private void RowValidating(DataGridView dgv, DataGridViewCellCancelEventArgs e)
         {
-            if (dgv.Rows[e.RowIndex].IsNewRow) return;
+            if (dgv.Rows[e.RowIndex].IsNewRow)
+            {
+                newRowAdded = true;
+                return;
+            }
             //foreach (DataGridViewCell cell in dgv.Rows[e.RowIndex].Cells)
             //{
             //    if (cell.Value == null || cell.Value.ToString().Trim() == "")
@@ -193,10 +212,25 @@ namespace ORM_Resourses
                     MessageBox.Show("Ресурс уже существует! Введённая строчка будет удалена!");
                     dgv.Rows.RemoveAt(e.RowIndex);
                     return;
-                }                
+                }
             }
             if (!canCommit) return;
-            InsertToDB(dgv, dgv.Rows[e.RowIndex]);
+
+            //if (dgv == dgvResources)
+            //    if (newRowAdded)
+            //    {
+
+            //        InsertToDB(dgv, dgv.Rows[e.RowIndex]);
+            //        newRowAdded = false;
+            //    }
+            //    else
+            //        UpdateDB(dgv, dgv.Rows[e.RowIndex]);
+            //if (dgv == dgvRConsume)
+            //    if (dgv.Rows[e.RowIndex].Cells["id"].Value == null)
+            //        InsertToDB(dgv, dgv.Rows[e.RowIndex]);
+            //    else
+            //        UpdateDB(dgv, dgv.Rows[e.RowIndex]);
+
             //foreach (var cell in dgv)
             //{
 
