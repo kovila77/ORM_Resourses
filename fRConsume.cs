@@ -75,7 +75,7 @@ namespace ORM_Resourses
                 dgvRConsume.Columns.Add(cbResorcesId);
                 dgvRConsume.Columns.Add(cbBuldingsId);
                 dgvRConsume.Columns.Add("consumeSpeed", "Скорость потребления");
-                dgvRConsume.Columns[dgvRConsume.Columns.Add("Source", "Source")].Visible = false;
+                dgvRConsume.Columns.Add("Source", "Source");
 
                 foreach (var brc in ctx.buildings_resources_consume)
                 {
@@ -85,6 +85,8 @@ namespace ORM_Resourses
                     dgvRConsume.Rows[i].Cells[2].Value = brc.consume_speed;
                     dgvRConsume.Rows[i].Cells[3].Value = brc;
                 }
+
+                dgvRConsume.Columns["Source"].Visible = false;
             }
         }
 
@@ -107,9 +109,9 @@ namespace ORM_Resourses
 
                 dgvResources.DataSource = dt;
 
+                dgvResources.Columns["name"].HeaderText = "Ресурс";
                 dgvResources.Columns["id"].Visible = false;
                 dgvResources.Columns["Source"].Visible = false;
-                dgvResources.Columns["name"].HeaderText = "Ресурс";
             }
         }
 
@@ -144,7 +146,7 @@ namespace ORM_Resourses
             return !(row.Cells["Source"].Value == null || row.Cells["Source"].Value == DBNull.Value);
         }
 
-        private int InsertToDB(DataGridView dgv, DataGridViewRow row)
+        private void InsertToDB(DataGridView dgv, DataGridViewRow row)
         {
             using (var ctx = new OpenDataContext())
             {
@@ -153,6 +155,7 @@ namespace ORM_Resourses
                     resource res = new resource { resources_name = row.Cells["name"].Value.ToString() };
                     ctx.resources.Add(res);
                     ctx.SaveChanges();
+
                     row.Cells["id"].Value = res.resources_id;
                     row.Cells["Source"].Value = res;
                 }
@@ -166,10 +169,10 @@ namespace ORM_Resourses
                     };
                     ctx.buildings_resources_consume.Add(brc);
                     ctx.SaveChanges();
+
                     row.Cells["Source"].Value = brc;
                 }
             }
-            return -1;
         }
 
         private void UpdateDB(DataGridView dgv, DataGridViewRow row)
@@ -186,8 +189,8 @@ namespace ORM_Resourses
                 {
                     buildings_resources_consume bsc = (buildings_resources_consume)row.Cells["Source"].Value;
                     ctx.buildings_resources_consume.Attach(bsc);
-                    if (bsc.building_id != (int)row.Cells["bId"].Value ||
-                        bsc.resources_id != (int)row.Cells["rId"].Value)
+                    if (bsc.building_id != (int)row.Cells["bId"].Value
+                        || bsc.resources_id != (int)row.Cells["rId"].Value)
                     {
                         ctx.buildings_resources_consume.Remove(bsc);
                         ctx.SaveChanges();
@@ -256,14 +259,6 @@ namespace ORM_Resourses
                 dgv.CancelEdit();
         }
 
-        private void RowValidating(DataGridView dgv, DataGridViewCellCancelEventArgs e)
-        {
-            if (dgv.Rows[e.RowIndex].IsNewRow)
-            {
-                return;
-            }
-        }
-
         private void CellEndEdit(DataGridView dgv, DataGridViewCellEventArgs e)
         {
             if (dgv.Rows[e.RowIndex].IsNewRow) return;
@@ -329,51 +324,6 @@ namespace ORM_Resourses
             }
         }
 
-        private void dgvResources_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
-            CellEndEdit(dgvResources, e);
-        }
-
-        private void dgvResources_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        {
-            CellValidating(dgvResources, e);
-        }
-
-
-        private void dgvResources_RowValidating(object sender, DataGridViewCellCancelEventArgs e)
-        {
-            RowValidating(dgvResources, e);
-        }
-
-        private void dgvRConsume_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
-
-            CellEndEdit(dgvRConsume, e);
-        }
-
-        private void dgvRConsume_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
-        {
-            CellValidating(dgvRConsume, e);
-        }
-
-        private void dgvRConsume_RowValidating(object sender, DataGridViewCellCancelEventArgs e)
-        {
-            RowValidating(dgvRConsume, e);
-        }
-
-        private void отменитьИзмененияToolStripMenuItem_Click_1(object sender, EventArgs e)
-        {
-            switch (tabControl.SelectedIndex)
-            {
-                case 0:
-                    dgvResources.CancelEdit();
-                    break;
-                case 1:
-                    dgvRConsume.CancelEdit();
-                    break;
-            }
-        }
-
         private bool dgvRConsumeContainRes(int idRes)
         {
             for (int i = 0; i < dgvRConsume.Rows.Count - 1; i++)
@@ -394,18 +344,17 @@ namespace ORM_Resourses
             {
                 if (MessageBox.Show("Данный ресурс связан с существующей таблицей! Удалить все связанные объекты?", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    List<DataGridViewRow> forDel = new List<DataGridViewRow>();
+                    List<DataGridViewRow> rowsForDel = new List<DataGridViewRow>();
                     foreach (DataGridViewRow row in dgvRConsume.Rows)
                     {
                         if (row.Cells["rId"].Value != null && (int)row.Cells["rId"].Value == id)
                         {
                             if (RowHaveSource(row))
                                 dgvRConsume_UserDeletingRow(null, new DataGridViewRowCancelEventArgs(row));
-                            //dgvRConsume.Rows.Remove(row);
-                            forDel.Add(row);
+                            rowsForDel.Add(row);
                         }
                     }
-                    foreach (DataGridViewRow row in forDel) dgvRConsume.Rows.Remove(row);
+                    foreach (DataGridViewRow row in rowsForDel) dgvRConsume.Rows.Remove(row);
                     e.Cancel = !DeleteFromDB(dgvResources, e.Row);
                 }
                 else
@@ -414,16 +363,42 @@ namespace ORM_Resourses
                 }
             }
         }
-
         private void dgvRConsume_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
             if (RowHaveSource(e.Row))
                 e.Cancel = !DeleteFromDB(dgvRConsume, e.Row);
         }
 
-        private void dgvResources_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        private void dgvResources_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            CellEndEdit(dgvResources, e);
+        }
+        private void dgvRConsume_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
 
+            CellEndEdit(dgvRConsume, e);
+        }
+
+        private void dgvRConsume_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            CellValidating(dgvRConsume, e);
+        }
+        private void dgvResources_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            CellValidating(dgvResources, e);
+        }
+
+        private void CancelEdit(object sender, EventArgs e)
+        {
+            switch (tabControl.SelectedIndex)
+            {
+                case 0:
+                    dgvResources.CancelEdit();
+                    break;
+                case 1:
+                    dgvRConsume.CancelEdit();
+                    break;
+            }
         }
     }
 }
