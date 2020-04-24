@@ -349,8 +349,8 @@ namespace ORM_Resourses
                     {
                         if (row.Cells["rId"].Value != null && (int)row.Cells["rId"].Value == id)
                         {
-                            if (RowHaveSource(row))
-                                dgvRConsume_UserDeletingRow(null, new DataGridViewRowCancelEventArgs(row));
+                            //if (RowHaveSource(row))
+                            //    dgvRConsume_UserDeletingRow(null, new DataGridViewRowCancelEventArgs(row));
                             rowsForDel.Add(row);
                         }
                     }
