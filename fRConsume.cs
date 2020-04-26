@@ -197,7 +197,7 @@ namespace ORM_Resourses
                         bsc = new buildings_resources_consume
                         {
                             building_id = (int)row.Cells["bId"].Value,
-                            resources_id = bsc.resources_id = (int)row.Cells["rId"].Value,
+                            resources_id = (int)row.Cells["rId"].Value,
                             consume_speed = Convert.ToInt32(row.Cells["consumeSpeed"].Value)
                         };
                         ctx.buildings_resources_consume.Add(bsc);
@@ -250,7 +250,8 @@ namespace ORM_Resourses
                 {
                     if (!int.TryParse(e.FormattedValue.ToString(), out t) || t < 0)
                     {
-                        e.Cancel = true;
+                        dgv.CancelEdit();
+                        //e.Cancel = true;
                         SystemSounds.Beep.Play();
                     }
                 }
@@ -375,7 +376,6 @@ namespace ORM_Resourses
         }
         private void dgvRConsume_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-
             CellEndEdit(dgvRConsume, e);
         }
 

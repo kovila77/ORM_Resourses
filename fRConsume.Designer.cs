@@ -53,7 +53,7 @@
             this.tabControl.Location = new System.Drawing.Point(0, 24);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(668, 243);
+            this.tabControl.Size = new System.Drawing.Size(513, 243);
             this.tabControl.TabIndex = 0;
             // 
             // tpRes
@@ -62,7 +62,7 @@
             this.tpRes.Location = new System.Drawing.Point(4, 22);
             this.tpRes.Name = "tpRes";
             this.tpRes.Padding = new System.Windows.Forms.Padding(3);
-            this.tpRes.Size = new System.Drawing.Size(660, 217);
+            this.tpRes.Size = new System.Drawing.Size(505, 217);
             this.tpRes.TabIndex = 0;
             this.tpRes.Text = "Ресурсы";
             this.tpRes.UseVisualStyleBackColor = true;
@@ -74,7 +74,7 @@
             this.dgvResources.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvResources.Location = new System.Drawing.Point(3, 3);
             this.dgvResources.Name = "dgvResources";
-            this.dgvResources.Size = new System.Drawing.Size(654, 211);
+            this.dgvResources.Size = new System.Drawing.Size(499, 211);
             this.dgvResources.TabIndex = 0;
             this.dgvResources.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvResources_CellEndEdit);
             this.dgvResources.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvResources_CellValidating);
@@ -111,7 +111,7 @@
             this.отменитьИзмененияToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(668, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(513, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -141,7 +141,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(668, 267);
+            this.ClientSize = new System.Drawing.Size(513, 267);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
